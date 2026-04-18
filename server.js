@@ -490,7 +490,9 @@ async function startServer() {
     });
   } catch (err) {
     console.error('❌ Failed to start server:', err.message);
-    console.error('   Make sure MySQL is running on localhost:3306');
+    console.error('   Tried connecting to MySQL at: ' + (process.env.MYSQLHOST || 'localhost') + ':' + (process.env.MYSQLPORT || '3306'));
+    console.error('   MYSQLHOST env:', process.env.MYSQLHOST || '(not set)');
+    console.error('   MYSQLDATABASE env:', process.env.MYSQLDATABASE || '(not set)');
     process.exit(1);
   }
 }

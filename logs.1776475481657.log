@@ -1,0 +1,78 @@
+2026-04-18T01:21:38.370909181Z [err]  npm warn config production Use `--omit=dev` instead.
+2026-04-18T01:21:38.370913016Z [inf]  
+2026-04-18T01:21:38.370916701Z [inf]  > parkspace-parking-system@1.0.0 start
+2026-04-18T01:21:38.370920182Z [inf]  > node server.js
+2026-04-18T01:21:38.370923737Z [inf]  
+2026-04-18T01:21:38.370927068Z [err]  ❌ Failed to start server: 
+2026-04-18T01:21:38.370930546Z [err]     Make sure MySQL is running on localhost:3306
+2026-04-18T01:21:38.660550552Z [inf]  Starting Container
+2026-04-18T01:21:38.774750682Z [err]  npm warn config production Use `--omit=dev` instead.
+2026-04-18T01:21:38.780058975Z [inf]  
+2026-04-18T01:21:38.780063492Z [inf]  > parkspace-parking-system@1.0.0 start
+2026-04-18T01:21:38.780067611Z [inf]  > node server.js
+2026-04-18T01:21:38.780070555Z [inf]  
+2026-04-18T01:21:38.933763094Z [err]  ❌ Failed to start server: 
+2026-04-18T01:21:38.933771032Z [err]     Make sure MySQL is running on localhost:3306
+2026-04-18T01:21:39.396634974Z [err]  npm warn config production Use `--omit=dev` instead.
+2026-04-18T01:21:39.408542200Z [inf]  
+2026-04-18T01:21:39.408546431Z [inf]  > parkspace-parking-system@1.0.0 start
+2026-04-18T01:21:39.408549570Z [inf]  > node server.js
+2026-04-18T01:21:39.408552503Z [inf]  
+2026-04-18T01:21:39.588909635Z [err]  ❌ Failed to start server: 
+2026-04-18T01:21:39.588922890Z [err]     Make sure MySQL is running on localhost:3306
+2026-04-18T01:21:40.150501592Z [err]  npm warn config production Use `--omit=dev` instead.
+2026-04-18T01:21:40.150506944Z [inf]  
+2026-04-18T01:21:40.150510488Z [inf]  > parkspace-parking-system@1.0.0 start
+2026-04-18T01:21:40.150513616Z [inf]  > node server.js
+2026-04-18T01:21:40.150516874Z [inf]  
+2026-04-18T01:21:40.248230348Z [err]  ❌ Failed to start server: 
+2026-04-18T01:21:40.248235077Z [err]     Make sure MySQL is running on localhost:3306
+2026-04-18T01:21:40.751522608Z [err]  npm warn config production Use `--omit=dev` instead.
+2026-04-18T01:21:40.764345722Z [inf]  
+2026-04-18T01:21:40.764349915Z [inf]  > parkspace-parking-system@1.0.0 start
+2026-04-18T01:21:40.764352790Z [inf]  > node server.js
+2026-04-18T01:21:40.764356303Z [inf]  
+2026-04-18T01:21:40.897355798Z [err]  ❌ Failed to start server: 
+2026-04-18T01:21:40.897360361Z [err]     Make sure MySQL is running on localhost:3306
+2026-04-18T01:21:41.399214830Z [err]  npm warn config production Use `--omit=dev` instead.
+2026-04-18T01:21:41.404297730Z [inf]  
+2026-04-18T01:21:41.404302123Z [inf]  > parkspace-parking-system@1.0.0 start
+2026-04-18T01:21:41.404305109Z [inf]  > node server.js
+2026-04-18T01:21:41.404308051Z [inf]  
+2026-04-18T01:21:41.533112521Z [err]  ❌ Failed to start server: 
+2026-04-18T01:21:41.533119899Z [err]     Make sure MySQL is running on localhost:3306
+2026-04-18T01:21:41.999576456Z [err]  npm warn config production Use `--omit=dev` instead.
+2026-04-18T01:21:41.999580859Z [inf]  
+2026-04-18T01:21:41.999584477Z [inf]  > parkspace-parking-system@1.0.0 start
+2026-04-18T01:21:41.999587617Z [inf]  > node server.js
+2026-04-18T01:21:41.999591082Z [inf]  
+2026-04-18T01:21:42.111864822Z [err]  ❌ Failed to start server: 
+2026-04-18T01:21:42.111869068Z [err]     Make sure MySQL is running on localhost:3306
+2026-04-18T01:21:42.598898014Z [err]  npm warn config production Use `--omit=dev` instead.
+2026-04-18T01:21:42.622079971Z [inf]  
+2026-04-18T01:21:42.622085743Z [inf]  > parkspace-parking-system@1.0.0 start
+2026-04-18T01:21:42.622090262Z [inf]  > node server.js
+2026-04-18T01:21:42.622095592Z [inf]  
+2026-04-18T01:21:42.722840683Z [err]  ❌ Failed to start server: 
+2026-04-18T01:21:42.722845534Z [err]     Make sure MySQL is running on localhost:3306
+2026-04-18T01:21:43.197232358Z [err]  npm warn config production Use `--omit=dev` instead.
+2026-04-18T01:21:43.209158792Z [inf]  
+2026-04-18T01:21:43.209164989Z [inf]  > parkspace-parking-system@1.0.0 start
+2026-04-18T01:21:43.209168805Z [inf]  > node server.js
+2026-04-18T01:21:43.209172546Z [inf]  
+2026-04-18T01:21:43.402772004Z [err]  ❌ Failed to start server: 
+2026-04-18T01:21:43.402776023Z [err]     Make sure MySQL is running on localhost:3306
+2026-04-18T01:21:43.833838621Z [err]  npm warn config production Use `--omit=dev` instead.
+2026-04-18T01:21:43.846611409Z [inf]  
+2026-04-18T01:21:43.846615689Z [inf]  > parkspace-parking-system@1.0.0 start
+2026-04-18T01:21:43.846618927Z [inf]  > node server.js
+2026-04-18T01:21:43.846622005Z [inf]  
+2026-04-18T01:21:43.960348898Z [err]  ❌ Failed to start server: 
+2026-04-18T01:21:43.960352126Z [err]     Make sure MySQL is running on localhost:3306
+2026-04-18T01:21:44.479897087Z [err]  npm warn config production Use `--omit=dev` instead.
+2026-04-18T01:21:44.499064496Z [inf]  
+2026-04-18T01:21:44.499069058Z [inf]  > parkspace-parking-system@1.0.0 start
+2026-04-18T01:21:44.499072247Z [inf]  > node server.js
+2026-04-18T01:21:44.499075320Z [inf]  
+2026-04-18T01:21:44.603543305Z [err]  ❌ Failed to start server: 
+2026-04-18T01:21:44.603546822Z [err]     Make sure MySQL is running on localhost:3306
