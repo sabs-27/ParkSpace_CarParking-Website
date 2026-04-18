@@ -1,0 +1,1960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ParkSpace - Smart Parking Reservation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ============================================================
+           CSS VARIABLES — Color palette & design tokens
+           ============================================================ */
+        :root {
+            --brand-50: #eff6ff;
+            --brand-100: #dbeafe;
+            --brand-500: #3b82f6;
+            --brand-600: #2563eb;
+            --brand-700: #1d4ed8;
+            --emerald-50: #ecfdf5;
+            --emerald-100: #d1fae5;
+            --emerald-200: #a7f3d0;
+            --emerald-500: #10b981;
+            --emerald-600: #059669;
+            --emerald-700: #047857;
+            --emerald-800: #065f46;
+            --red-50: #fef2f2;
+            --red-100: #fee2e2;
+            --red-200: #fecaca;
+            --red-400: #f87171;
+            --red-500: #ef4444;
+            --red-600: #dc2626;
+            --red-800: #991b1b;
+            --purple-50: #f5f3ff;
+            --purple-100: #ede9fe;
+            --purple-200: #ddd6fe;
+            --purple-300: #c4b5fd;
+            --purple-400: #a78bfa;
+            --purple-500: #8b5cf6;
+            --purple-600: #7c3aed;
+            --purple-700: #6d28d9;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-400: #94a3b8;
+            --gray-500: #64748b;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1e293b;
+            --gray-900: #0f172a;
+            --amber-50: #fffbeb;
+            --amber-100: #fef3c7;
+            --amber-700: #b45309;
+            --indigo-50: #eef2ff;
+            --indigo-100: #e0e7ff;
+            --indigo-700: #4338ca;
+            --blue-50: #eff6ff;
+            --blue-100: #dbeafe;
+            --blue-600: #2563eb;
+            --blue-700: #1d4ed8;
+            --blue-800: #1e40af;
+            --blue-900: #1e3a5f;
+            --radius: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 16px;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.06);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.1), 0 4px 6px rgba(0,0,0,0.05);
+            --shadow-xl: 0 20px 25px rgba(0,0,0,0.1), 0 10px 10px rgba(0,0,0,0.04);
+        }
+
+        /* ============================================================
+           RESET & BASE
+           ============================================================ */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--gray-50);
+            color: var(--gray-800);
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        a { text-decoration: none; color: inherit; }
+        button { cursor: pointer; border: none; background: none; font-family: inherit; font-size: inherit; }
+        input, select { font-family: inherit; }
+        table { border-collapse: collapse; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--gray-400); }
+
+        /* Animations */
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .spinner {
+            border: 3px solid #e5e7eb; border-top: 3px solid var(--brand-600);
+            border-radius: 50%; width: 20px; height: 20px;
+            animation: spin 0.6s linear infinite; display: inline-block;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Hidden */
+        .hidden { display: none !important; }
+
+        /* SVG Icon base */
+        .icon { width: 20px; height: 20px; display: inline-block; vertical-align: middle; flex-shrink: 0; }
+        .icon-sm { width: 16px; height: 16px; }
+        .icon-lg { width: 24px; height: 24px; }
+        .icon-xl { width: 32px; height: 32px; }
+        .icon-xxl { width: 64px; height: 64px; }
+
+        /* ============================================================
+           LAYOUT
+           ============================================================ */
+        .container {
+            width: 100%; max-width: 1280px;
+            margin: 0 auto; padding: 0 16px;
+        }
+        .main-content { flex-grow: 1; padding: 32px 16px; max-width: 1280px; margin: 0 auto; width: 100%; }
+
+        /* Flex helpers */
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .flex-wrap { flex-wrap: wrap; }
+        .items-center { align-items: center; }
+        .items-start { align-items: flex-start; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .gap-1 { gap: 4px; } .gap-2 { gap: 8px; } .gap-3 { gap: 12px; }
+        .gap-4 { gap: 16px; } .gap-6 { gap: 24px; } .gap-8 { gap: 32px; }
+        .flex-1 { flex: 1; }
+        .flex-grow { flex-grow: 1; }
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+        .w-full { width: 100%; }
+        .relative { position: relative; }
+        .overflow-hidden { overflow: hidden; }
+
+        /* ============================================================
+           GRID
+           ============================================================ */
+        .grid { display: grid; gap: 16px; }
+        .grid-2 { grid-template-columns: repeat(2, 1fr); }
+        .grid-3 { grid-template-columns: repeat(3, 1fr); }
+        .grid-cols-slot { grid-template-columns: repeat(2, 1fr); }
+        @media (min-width: 640px) { .grid-cols-slot { grid-template-columns: repeat(3, 1fr); } }
+        @media (min-width: 768px) {
+            .grid-cols-slot { grid-template-columns: repeat(4, 1fr); }
+            .md-grid-2 { grid-template-columns: repeat(2, 1fr); }
+            .md-grid-3 { grid-template-columns: repeat(3, 1fr); }
+        }
+        @media (min-width: 1024px) {
+            .grid-cols-slot { grid-template-columns: repeat(6, 1fr); }
+            .lg-grid-3 { grid-template-columns: repeat(3, 1fr); }
+            .lg-grid-4 { grid-template-columns: repeat(4, 1fr); }
+            .lg-col-span-2 { grid-column: span 2; }
+        }
+
+        /* ============================================================
+           NAVBAR — USER (Blue/White)
+           ============================================================ */
+        .navbar {
+            background: white; border-bottom: 1px solid var(--gray-100);
+            box-shadow: var(--shadow-sm); position: sticky; top: 0; z-index: 50;
+        }
+        .navbar-inner {
+            max-width: 1280px; margin: 0 auto; padding: 0 16px;
+            display: flex; justify-content: space-between; align-items: center; height: 64px;
+        }
+        .navbar-logo { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+        .navbar-logo-icon {
+            background: var(--brand-600); color: white; padding: 8px;
+            border-radius: var(--radius); display: flex; align-items: center; justify-content: center;
+        }
+        .navbar-logo-text { font-weight: 700; font-size: 20px; color: var(--gray-900); letter-spacing: -0.02em; }
+        .navbar-actions { display: flex; align-items: center; gap: 4px; }
+        .nav-btn {
+            padding: 8px 12px; border-radius: 6px; font-size: 14px; font-weight: 500;
+            color: var(--gray-600); transition: all 0.2s; display: flex; align-items: center; gap: 4px;
+        }
+        .nav-btn:hover { color: var(--brand-600); background: var(--brand-50); }
+        .nav-btn.active { color: var(--brand-600); background: var(--brand-50); }
+        .nav-divider { width: 1px; height: 24px; background: var(--gray-200); margin: 0 8px; }
+        .nav-user-name { font-size: 14px; font-weight: 500; color: var(--gray-700); }
+        .nav-logout { color: var(--gray-500); padding: 4px 8px; transition: color 0.2s; display: flex; align-items: center; }
+        .nav-logout:hover { color: var(--red-500); }
+
+        /* ============================================================
+           NAVBAR — ADMIN (Dark Purple)
+           ============================================================ */
+        .navbar-admin {
+            background: linear-gradient(135deg, #1e1b4b, #312e81);
+            box-shadow: var(--shadow-lg); position: sticky; top: 0; z-index: 50;
+        }
+        .navbar-admin .navbar-logo-icon { background: var(--purple-500); }
+        .navbar-admin .navbar-logo-text { color: white; }
+        .navbar-admin .navbar-logo-sub { color: var(--purple-300); font-size: 14px; font-weight: 400; margin-left: 4px; }
+        .admin-nav-btn {
+            padding: 8px 12px; border-radius: 6px; font-size: 14px; font-weight: 500;
+            color: var(--purple-200); transition: all 0.2s; display: flex; align-items: center; gap: 4px;
+        }
+        .admin-nav-btn:hover, .admin-nav-btn.active { color: white; background: rgba(255,255,255,0.1); }
+        .navbar-admin .nav-divider { background: rgba(139,92,246,0.3); }
+        .navbar-admin .nav-user-name { color: var(--purple-200); }
+        .navbar-admin .nav-logout { color: var(--purple-300); }
+        .navbar-admin .nav-logout:hover { color: var(--red-400); }
+
+        /* ============================================================
+           TYPOGRAPHY
+           ============================================================ */
+        .page-title { font-size: 30px; font-weight: 700; color: var(--gray-900); }
+        .page-subtitle { color: var(--gray-500); margin-top: 4px; font-size: 15px; }
+        .text-sm { font-size: 14px; } .text-xs { font-size: 12px; } .text-lg { font-size: 18px; }
+        .font-medium { font-weight: 500; } .font-semibold { font-weight: 600; } .font-bold { font-weight: 700; }
+        .text-gray-400 { color: var(--gray-400); } .text-gray-500 { color: var(--gray-500); }
+        .text-gray-600 { color: var(--gray-600); } .text-gray-700 { color: var(--gray-700); }
+        .text-gray-900 { color: var(--gray-900); }
+        .text-brand { color: var(--brand-600); } .text-emerald { color: var(--emerald-600); }
+        .text-red { color: var(--red-600); } .text-purple { color: var(--purple-600); }
+        .uppercase { text-transform: uppercase; } .tracking-wide { letter-spacing: 0.05em; }
+        .mono { font-family: ui-monospace, monospace; }
+
+        /* ============================================================
+           BUTTONS
+           ============================================================ */
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 10px 16px; border-radius: var(--radius); font-size: 14px; font-weight: 500;
+            transition: all 0.2s; cursor: pointer; border: none; width: 100%;
+        }
+        .btn-brand { background: var(--brand-600); color: white; box-shadow: var(--shadow-sm); }
+        .btn-brand:hover { background: var(--brand-700); }
+        .btn-emerald { background: var(--emerald-600); color: white; box-shadow: var(--shadow-sm); }
+        .btn-emerald:hover { background: var(--emerald-700); }
+        .btn-purple { background: var(--purple-600); color: white; box-shadow: var(--shadow-sm); }
+        .btn-purple:hover { background: var(--purple-700); }
+        .btn:disabled { opacity: 0.7; cursor: not-allowed; }
+        .btn-ghost { background: var(--brand-50); color: var(--brand-600); }
+        .btn-ghost:hover { background: var(--brand-100); }
+        .btn-link { background: none; color: var(--gray-500); padding: 4px; }
+        .btn-link:hover { color: var(--gray-800); }
+        .btn-icon-danger { color: var(--gray-400); padding: 4px; transition: color 0.2s; }
+        .btn-icon-danger:hover { color: var(--red-500); }
+
+        /* ============================================================
+           FORMS
+           ============================================================ */
+        .form-group { margin-bottom: 16px; }
+        .form-label { display: block; font-size: 14px; font-weight: 500; color: var(--gray-700); margin-bottom: 4px; }
+        .input-wrapper { position: relative; }
+        .input-icon {
+            position: absolute; top: 50%; left: 12px; transform: translateY(-50%);
+            color: var(--gray-400); display: flex; align-items: center;
+        }
+        .form-input {
+            display: block; width: 100%; padding: 10px 12px; padding-left: 40px;
+            border: 1px solid var(--gray-300); border-radius: var(--radius);
+            font-size: 14px; color: var(--gray-800); transition: border-color 0.2s, box-shadow 0.2s;
+            background: white;
+        }
+        .form-input:focus { outline: none; border-color: var(--brand-500); box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+        .form-input-plain { padding-left: 12px; }
+        .form-select {
+            display: block; width: 100%; padding: 10px 12px;
+            border: 1px solid var(--gray-300); border-radius: var(--radius);
+            font-size: 14px; color: var(--gray-800); background: white;
+            transition: border-color 0.2s;
+        }
+        .form-select:focus { outline: none; border-color: var(--brand-500); }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 639px) { .form-grid { grid-template-columns: 1fr; } }
+
+        .error-box {
+            font-size: 14px; color: var(--red-600); background: var(--red-50);
+            border: 1px solid var(--red-100); border-radius: var(--radius); padding: 12px;
+        }
+
+        /* ============================================================
+           CARDS & PANELS
+           ============================================================ */
+        .card {
+            background: white; border-radius: var(--radius-xl); border: 1px solid var(--gray-100);
+            box-shadow: var(--shadow-sm); overflow: hidden;
+        }
+        .card-padded { padding: 24px; }
+        .stat-card {
+            background: white; padding: 24px; border-radius: var(--radius-lg);
+            border: 1px solid var(--gray-100); box-shadow: var(--shadow-sm);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .stat-label { font-size: 14px; font-weight: 500; color: var(--gray-500); }
+        .stat-value { font-size: 28px; font-weight: 700; margin-top: 2px; }
+        .stat-icon {
+            padding: 12px; border-radius: var(--radius); display: flex;
+            align-items: center; justify-content: center;
+        }
+
+        .booking-card {
+            background: white; padding: 20px; border-radius: var(--radius-lg);
+            border: 1px solid var(--gray-100); box-shadow: var(--shadow-sm);
+            position: relative; overflow: hidden; transition: box-shadow 0.2s;
+        }
+        .booking-card:hover { box-shadow: var(--shadow-md); }
+        .booking-card-accent {
+            position: absolute; top: 0; left: 0; width: 4px; height: 100%;
+            background: var(--brand-500);
+        }
+
+        /* ============================================================
+           LOGIN-SPECIFIC
+           ============================================================ */
+        .login-container { min-height: 80vh; display: flex; align-items: center; justify-content: center; }
+        .login-card {
+            background: white; padding: 32px; border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-xl); width: 100%; max-width: 420px;
+            border: 1px solid var(--gray-100);
+        }
+        .login-logo {
+            width: 64px; height: 64px; border-radius: 50%;
+            background: var(--brand-100); color: var(--brand-600);
+            display: inline-flex; align-items: center; justify-content: center; margin-bottom: 16px;
+        }
+        .login-title { font-size: 24px; font-weight: 700; color: var(--gray-900); }
+        .login-sub { font-size: 14px; color: var(--gray-500); margin-top: 8px; }
+
+        /* Role toggle */
+        .role-toggle {
+            display: flex; background: var(--gray-100); border-radius: var(--radius-lg);
+            padding: 6px; gap: 6px; margin-bottom: 24px;
+        }
+        .role-tab {
+            flex: 1; padding: 12px; border-radius: var(--radius); font-size: 14px;
+            font-weight: 600; text-align: center; cursor: pointer; transition: all 0.25s;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            background: transparent; color: var(--gray-500);
+        }
+        .role-tab.active-user {
+            background: linear-gradient(135deg, var(--brand-500), var(--brand-600));
+            color: white; box-shadow: 0 4px 15px rgba(37,99,235,0.3);
+        }
+        .role-tab.active-admin {
+            background: linear-gradient(135deg, var(--purple-600), var(--purple-700));
+            color: white; box-shadow: 0 4px 15px rgba(109,40,217,0.3);
+        }
+
+        /* Auth tabs (Sign In / Register) */
+        .auth-toggle {
+            display: flex; background: var(--gray-100); border-radius: var(--radius);
+            padding: 4px; margin-bottom: 24px;
+        }
+        .auth-tab {
+            flex: 1; padding: 8px; border-radius: 6px; font-size: 14px;
+            font-weight: 500; text-align: center; cursor: pointer; transition: all 0.2s;
+            background: transparent; color: var(--gray-500);
+        }
+        .auth-tab.active { background: var(--brand-600); color: white; }
+
+        /* Role banner */
+        .role-banner {
+            border-radius: var(--radius); padding: 12px; margin-bottom: 20px; text-align: center;
+            font-size: 14px;
+        }
+        .role-banner.user-banner { background: var(--blue-50); border: 1px solid var(--blue-100); color: var(--blue-700); }
+        .role-banner.admin-banner { background: var(--purple-50); border: 1px solid var(--purple-100); color: var(--purple-700); }
+
+        /* ============================================================
+           SLOT GRID
+           ============================================================ */
+        .slot {
+            display: flex; align-items: center; gap: 12px;
+            padding: 14px 18px; border-radius: var(--radius-lg); border: 1.5px solid;
+            transition: all 0.25s; position: relative; cursor: pointer;
+        }
+        .slot-available {
+            background: white; border-color: var(--emerald-200);
+            box-shadow: var(--shadow-sm);
+        }
+        .slot-available:hover {
+            border-color: var(--emerald-500); background: var(--emerald-50);
+            box-shadow: 0 4px 16px rgba(16,185,129,0.15); transform: translateY(-2px);
+        }
+        .slot-occupied {
+            background: var(--gray-50); border-color: var(--gray-200);
+            cursor: not-allowed; opacity: 0.65;
+        }
+        .slot-icon-wrap {
+            width: 40px; height: 40px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .slot-icon-avail { background: var(--emerald-100); color: var(--emerald-600); }
+        .slot-icon-occ { background: var(--gray-100); color: var(--gray-400); }
+        .slot-info { flex: 1; min-width: 0; }
+        .slot-id { font-size: 16px; font-weight: 700; color: var(--gray-900); }
+        .slot-occupied .slot-id { color: var(--gray-400); }
+        .slot-status { font-size: 12px; font-weight: 500; margin-top: 1px; }
+        .slot-indicator {
+            width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+            background: var(--emerald-500); box-shadow: 0 0 8px rgba(16,185,129,0.6);
+        }
+        .slot-indicator-off { background: var(--gray-300); box-shadow: none; }
+
+        /* Zone Layout */
+        .zone-section { margin-bottom: 32px; }
+        .zone-header {
+            display: flex; align-items: center; gap: 10px;
+            margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid var(--gray-100);
+        }
+        .zone-badge {
+            padding: 4px 14px; border-radius: 8px; font-size: 13px;
+            font-weight: 700; letter-spacing: 0.04em;
+        }
+        .zone-badge-a { background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: var(--brand-700); }
+        .zone-badge-b { background: linear-gradient(135deg, #ede9fe, #ddd6fe); color: var(--purple-700); }
+        .zone-badge-c { background: linear-gradient(135deg, #fef3c7, #fde68a); color: var(--amber-700); }
+        .zone-label { font-size: 14px; font-weight: 500; color: var(--gray-500); }
+        .zone-grid {
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
+        }
+        @media (min-width: 640px) { .zone-grid { grid-template-columns: repeat(3, 1fr); } }
+        @media (min-width: 1024px) { .zone-grid { grid-template-columns: repeat(4, 1fr); } }
+
+        /* Location Card */
+        .location-card {
+            background: white; border-radius: var(--radius-xl); border: 1px solid var(--gray-100);
+            box-shadow: var(--shadow-sm); padding: 24px; margin-bottom: 28px;
+            display: grid; grid-template-columns: 1fr; gap: 20px;
+        }
+        @media (min-width: 768px) { .location-card { grid-template-columns: 1fr 1fr 1fr; } }
+        .location-item { display: flex; align-items: flex-start; gap: 12px; }
+        .location-icon {
+            width: 40px; height: 40px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .location-icon-blue { background: var(--brand-50); color: var(--brand-600); }
+        .location-icon-green { background: var(--emerald-50); color: var(--emerald-600); }
+        .location-icon-purple { background: var(--purple-50); color: var(--purple-600); }
+        .location-title { font-size: 13px; font-weight: 600; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.05em; }
+        .location-value { font-size: 14px; font-weight: 600; color: var(--gray-900); margin-top: 2px; }
+        .location-sub { font-size: 12px; color: var(--gray-500); margin-top: 1px; }
+
+        /* ============================================================
+           RESERVATION PANEL
+           ============================================================ */
+        .res-header { background: var(--brand-600); padding: 16px 24px; }
+        .res-header h2 { font-size: 20px; font-weight: 700; color: white; }
+        .res-body { padding: 24px 32px; }
+        .res-slot-badge {
+            background: var(--gray-50); padding: 24px; border-radius: var(--radius-lg);
+            border: 1px solid var(--gray-100); text-align: center;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .res-slot-label { font-size: 14px; font-weight: 500; color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.05em; }
+        .res-slot-id { font-size: 48px; font-weight: 700; color: var(--gray-900); margin: 16px 0; }
+        .res-slot-status {
+            display: inline-flex; padding: 2px 10px; border-radius: 20px;
+            font-size: 12px; font-weight: 500;
+            background: var(--emerald-100); color: var(--emerald-800);
+        }
+        .cost-box {
+            background: var(--blue-50); border: 1px solid var(--blue-100);
+            border-radius: var(--radius); padding: 16px; margin-top: 24px;
+        }
+        .cost-box .cost-label { font-size: 14px; font-weight: 500; color: var(--blue-800); }
+        .cost-box .cost-value { font-size: 20px; font-weight: 700; color: var(--blue-900); }
+        .cost-box .cost-rate { font-size: 12px; color: var(--blue-600); margin-top: 4px; }
+        .res-layout { display: flex; flex-direction: column; gap: 32px; }
+        @media (min-width: 768px) {
+            .res-layout { flex-direction: row; }
+            .res-layout-left { width: 33%; }
+            .res-layout-right { width: 67%; }
+        }
+
+        /* ============================================================
+           TABLE
+           ============================================================ */
+        .data-table { width: 100%; text-align: left; font-size: 14px; color: var(--gray-500); }
+        .data-table thead { font-size: 12px; color: var(--gray-700); text-transform: uppercase; background: var(--gray-50); border-bottom: 1px solid var(--gray-200); }
+        .data-table th { padding: 12px 24px; font-weight: 600; }
+        .data-table td { padding: 16px 24px; }
+        .data-table tbody tr { background: white; border-bottom: 1px solid var(--gray-100); transition: background 0.15s; }
+        .data-table tbody tr:hover { background: var(--gray-50); }
+
+        /* ============================================================
+           BADGES
+           ============================================================ */
+        .badge {
+            display: inline-flex; align-items: center; padding: 2px 10px;
+            border-radius: 20px; font-size: 12px; font-weight: 500;
+        }
+        .badge-green { background: var(--emerald-100); color: var(--emerald-800); border: 1px solid var(--emerald-200); }
+        .badge-red { background: var(--red-100); color: var(--red-800); border: 1px solid var(--red-200); }
+        .badge-gray { background: var(--gray-100); color: var(--gray-500); }
+        .badge-brand { background: var(--brand-50); color: var(--brand-600); font-weight: 600; padding: 4px 8px; border-radius: 6px; }
+        .badge-mono { font-family: ui-monospace, monospace; font-size: 12px; background: var(--gray-100); padding: 4px 8px; border-radius: 4px; }
+
+        /* ============================================================
+           LEGEND
+           ============================================================ */
+        .legend { display: flex; align-items: center; gap: 24px; margin-bottom: 24px; padding: 0 8px; }
+        .legend-item { display: flex; align-items: center; gap: 8px; }
+        .legend-dot { width: 16px; height: 16px; border-radius: 4px; }
+        .legend-dot-green { background: var(--emerald-100); border: 1px solid var(--emerald-500); }
+        .legend-dot-red { background: var(--red-100); border: 1px solid var(--red-500); }
+
+        /* ============================================================
+           EMPTY STATE
+           ============================================================ */
+        .empty-state {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 64px 16px; background: white; border-radius: var(--radius-xl);
+            border: 2px dashed var(--gray-300);
+        }
+        .empty-state h3 { font-size: 18px; font-weight: 500; color: var(--gray-900); margin-top: 16px; }
+        .empty-state p { font-size: 14px; color: var(--gray-500); margin-top: 4px; margin-bottom: 16px; }
+
+        /* ============================================================
+           FILTER BAR
+           ============================================================ */
+        .filter-bar {
+            background: white; padding: 8px; border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm); border: 1px solid var(--gray-100);
+            display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+        }
+        .filter-group {
+            display: flex; align-items: center; padding: 6px 12px;
+            background: var(--gray-50); border-radius: var(--radius); gap: 8px;
+        }
+        .filter-group input {
+            background: transparent; border: none; font-size: 14px;
+            color: var(--gray-700); outline: none; padding: 0; width: auto;
+        }
+        .filter-btn {
+            background: var(--brand-100); color: var(--brand-700);
+            padding: 8px; border-radius: var(--radius); transition: background 0.2s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .filter-btn:hover { background: var(--brand-200); }
+
+        /* ============================================================
+           TOAST
+           ============================================================ */
+        .toast {
+            position: fixed; bottom: 16px; right: 16px;
+            background: var(--gray-900); color: white; padding: 12px 24px;
+            border-radius: var(--radius); box-shadow: var(--shadow-lg);
+            transform: translateY(80px); opacity: 0; transition: all 0.3s;
+            z-index: 100; display: flex; align-items: center; gap: 12px;
+        }
+        .toast.show { transform: translateY(0); opacity: 1; }
+
+        /* ============================================================
+           ADMIN QUICK ACTION
+           ============================================================ */
+        .quick-action {
+            width: 100%; display: flex; align-items: center; gap: 12px;
+            padding: 12px; border-radius: var(--radius); transition: background 0.2s;
+            font-size: 14px; font-weight: 500;
+        }
+        .quick-action-indigo { background: var(--indigo-50); color: var(--indigo-700); }
+        .quick-action-indigo:hover { background: var(--indigo-100); }
+        .quick-action-amber { background: var(--amber-50); color: var(--amber-700); }
+        .quick-action-amber:hover { background: var(--amber-100); }
+
+        .recent-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 12px; background: var(--gray-50); border-radius: var(--radius);
+        }
+        .recent-avatar {
+            width: 40px; height: 40px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .recent-avatar-active { background: var(--emerald-100); color: var(--emerald-600); }
+        .recent-avatar-cancelled { background: var(--gray-100); color: var(--gray-400); }
+
+        /* Table action buttons */
+        .table-action { font-weight: 500; transition: color 0.2s; font-size: 14px; }
+        .table-action-red { color: var(--red-600); }
+        .table-action-red:hover { color: var(--red-800); }
+        .table-action-green { color: var(--emerald-600); }
+        .table-action-green:hover { color: var(--emerald-800); }
+
+        /* Responsive header */
+        .page-header { display: flex; flex-direction: column; gap: 16px; margin-bottom: 32px; }
+        @media (min-width: 768px) { .page-header { flex-direction: row; justify-content: space-between; align-items: center; } }
+        @media (max-width: 639px) {
+            .nav-btn span, .admin-nav-btn span { display: none; }
+            .nav-user-name { display: none !important; }
+        }
+
+        /* ============================================================
+           LANDING PAGE
+           ============================================================ */
+
+        /* Landing Navbar */
+        .navbar-landing {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            background: transparent; transition: all 0.4s ease;
+            border-bottom: 1px solid transparent;
+        }
+        .navbar-landing.scrolled {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-bottom-color: var(--gray-100);
+            box-shadow: 0 4px 30px rgba(0,0,0,0.06);
+        }
+        .navbar-landing .navbar-inner { max-width: 1280px; margin: 0 auto; padding: 0 24px; display: flex; justify-content: space-between; align-items: center; height: 72px; }
+        .navbar-landing .navbar-logo-text { color: white; transition: color 0.4s; }
+        .navbar-landing.scrolled .navbar-logo-text { color: var(--gray-900); }
+        .navbar-landing .navbar-logo-icon { background: white; color: var(--brand-600); }
+        .navbar-landing.scrolled .navbar-logo-icon { background: var(--brand-600); color: white; }
+        .landing-nav-links { display: flex; align-items: center; gap: 8px; }
+        .landing-nav-link {
+            padding: 8px 16px; border-radius: 8px; font-size: 14px; font-weight: 500;
+            color: rgba(255,255,255,0.85); transition: all 0.3s; cursor: pointer;
+        }
+        .landing-nav-link:hover { color: white; background: rgba(255,255,255,0.15); }
+        .navbar-landing.scrolled .landing-nav-link { color: var(--gray-600); }
+        .navbar-landing.scrolled .landing-nav-link:hover { color: var(--brand-600); background: var(--brand-50); }
+        .landing-cta-btn {
+            padding: 10px 24px; border-radius: 10px; font-size: 14px; font-weight: 600;
+            background: white; color: var(--brand-600); transition: all 0.3s;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.15); cursor: pointer;
+        }
+        .landing-cta-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+        .navbar-landing.scrolled .landing-cta-btn {
+            background: var(--brand-600); color: white;
+            box-shadow: 0 2px 12px rgba(37,99,235,0.3);
+        }
+        .navbar-landing.scrolled .landing-cta-btn:hover { background: var(--brand-700); box-shadow: 0 4px 20px rgba(37,99,235,0.4); }
+
+        /* Hero Section */
+        .hero {
+            position: relative; min-height: 100vh; display: flex; align-items: center;
+            overflow: hidden; background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 40%, #1d4ed8 100%);
+        }
+        .hero-bg-overlay {
+            position: absolute; inset: 0;
+            background: linear-gradient(135deg, rgba(15,23,42,0.85) 0%, rgba(30,58,95,0.6) 50%, rgba(29,78,216,0.4) 100%);
+            z-index: 1;
+        }
+        .hero-bg-image {
+            position: absolute; inset: 0; z-index: 0;
+            background-image: url('https://raw.githubusercontent.com/sabs-27/images/main/gpt%20image.png');
+            background-size: cover; background-position: center; background-repeat: no-repeat;
+        }
+        .hero-particles {
+            position: absolute; inset: 0; z-index: 1; overflow: hidden;
+        }
+        .hero-particle {
+            position: absolute; border-radius: 50%; background: rgba(255,255,255,0.08);
+            animation: floatParticle 20s infinite ease-in-out;
+        }
+        .hero-particle:nth-child(1) { width: 300px; height: 300px; top: -100px; right: -100px; animation-delay: 0s; }
+        .hero-particle:nth-child(2) { width: 200px; height: 200px; bottom: -60px; left: -60px; animation-delay: -5s; }
+        .hero-particle:nth-child(3) { width: 150px; height: 150px; top: 40%; left: 30%; animation-delay: -10s; }
+        @keyframes floatParticle {
+            0%, 100% { transform: translate(0,0) scale(1); opacity: 0.06; }
+            33% { transform: translate(30px,-30px) scale(1.1); opacity: 0.12; }
+            66% { transform: translate(-20px,20px) scale(0.9); opacity: 0.08; }
+        }
+        .hero-content {
+            position: relative; z-index: 2; max-width: 1280px; margin: 0 auto;
+            padding: 120px 24px 80px; width: 100%;
+            display: grid; grid-template-columns: 1fr; gap: 48px; align-items: center;
+        }
+        @media (min-width: 768px) {
+            .hero-content { grid-template-columns: 1fr 1fr; padding: 140px 24px 100px; }
+        }
+        .hero-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(255,255,255,0.1); backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2); border-radius: 50px;
+            padding: 6px 16px 6px 8px; font-size: 13px; color: rgba(255,255,255,0.9);
+            margin-bottom: 24px; animation: fadeIn 0.6s ease;
+        }
+        .hero-badge-dot {
+            width: 8px; height: 8px; border-radius: 50%; background: var(--emerald-500);
+            box-shadow: 0 0 8px rgba(16,185,129,0.8); animation: pulse-dot 2s infinite;
+        }
+        @keyframes pulse-dot {
+            0%, 100% { box-shadow: 0 0 8px rgba(16,185,129,0.8); }
+            50% { box-shadow: 0 0 16px rgba(16,185,129,1); }
+        }
+        .hero-title {
+            font-size: clamp(36px, 5vw, 56px); font-weight: 800; color: white;
+            line-height: 1.1; letter-spacing: -0.03em; margin-bottom: 20px;
+            animation: fadeIn 0.6s ease 0.1s both;
+        }
+        .hero-title-gradient {
+            background: linear-gradient(135deg, #60a5fa, #a78bfa, #f472b6);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero-subtitle {
+            font-size: 18px; color: rgba(255,255,255,0.7); line-height: 1.7;
+            max-width: 500px; margin-bottom: 36px;
+            animation: fadeIn 0.6s ease 0.2s both;
+        }
+        .hero-actions {
+            display: flex; flex-wrap: wrap; gap: 16px;
+            animation: fadeIn 0.6s ease 0.3s both;
+        }
+        .hero-btn-primary {
+            padding: 16px 32px; border-radius: 14px; font-size: 16px; font-weight: 600;
+            background: linear-gradient(135deg, var(--brand-500), var(--purple-500));
+            color: white; box-shadow: 0 8px 32px rgba(59,130,246,0.3);
+            transition: all 0.3s; cursor: pointer; display: inline-flex; align-items: center; gap: 10px;
+        }
+        .hero-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(59,130,246,0.45); }
+        .hero-btn-secondary {
+            padding: 16px 32px; border-radius: 14px; font-size: 16px; font-weight: 600;
+            background: rgba(255,255,255,0.1); backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.25); color: white;
+            transition: all 0.3s; cursor: pointer; display: inline-flex; align-items: center; gap: 10px;
+        }
+        .hero-btn-secondary:hover { background: rgba(255,255,255,0.2); transform: translateY(-2px); }
+
+        /* Hero Image Card */
+        .hero-image-card {
+            position: relative; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.1);
+            animation: fadeIn 0.8s ease 0.4s both;
+            transform: perspective(1000px) rotateY(-5deg) rotateX(2deg);
+            transition: transform 0.5s ease;
+        }
+        .hero-image-card:hover { transform: perspective(1000px) rotateY(0deg) rotateX(0deg); }
+        .hero-image-card img { width: 100%; height: auto; display: block; }
+        .hero-image-glow {
+            position: absolute; bottom: -50%; left: 10%; width: 80%; height: 100%;
+            background: radial-gradient(ellipse, rgba(59,130,246,0.3), transparent 70%);
+            filter: blur(40px); z-index: -1;
+        }
+
+        /* Features Section */
+        .landing-section {
+            padding: 100px 24px; max-width: 1280px; margin: 0 auto; width: 100%;
+        }
+        .section-eyebrow {
+            display: inline-flex; align-items: center; gap: 8px;
+            font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em;
+            color: var(--brand-600); background: var(--brand-50);
+            padding: 6px 14px; border-radius: 50px; margin-bottom: 16px;
+        }
+        .section-title {
+            font-size: clamp(28px, 4vw, 42px); font-weight: 800; color: var(--gray-900);
+            letter-spacing: -0.02em; margin-bottom: 12px;
+        }
+        .section-subtitle {
+            font-size: 17px; color: var(--gray-500); max-width: 600px; line-height: 1.7;
+            margin-bottom: 56px;
+        }
+        .features-grid {
+            display: grid; grid-template-columns: 1fr; gap: 24px;
+        }
+        @media (min-width: 640px) { .features-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (min-width: 1024px) { .features-grid { grid-template-columns: repeat(3, 1fr); } }
+        .feature-card {
+            background: white; padding: 32px; border-radius: 20px;
+            border: 1px solid var(--gray-100); box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            transition: all 0.4s ease; position: relative; overflow: hidden;
+        }
+        .feature-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, var(--brand-500), var(--purple-500));
+            transform: scaleX(0); transform-origin: left; transition: transform 0.4s ease;
+        }
+        .feature-card:hover { transform: translateY(-6px); box-shadow: 0 20px 40px rgba(0,0,0,0.08); }
+        .feature-card:hover::before { transform: scaleX(1); }
+        .feature-icon {
+            width: 52px; height: 52px; border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 20px; transition: transform 0.3s;
+        }
+        .feature-card:hover .feature-icon { transform: scale(1.1); }
+        .feature-icon-blue { background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: var(--brand-600); }
+        .feature-icon-emerald { background: linear-gradient(135deg, #d1fae5, #a7f3d0); color: var(--emerald-600); }
+        .feature-icon-purple { background: linear-gradient(135deg, #ede9fe, #ddd6fe); color: var(--purple-600); }
+        .feature-icon-amber { background: linear-gradient(135deg, #fef3c7, #fde68a); color: var(--amber-700); }
+        .feature-icon-red { background: linear-gradient(135deg, #fee2e2, #fecaca); color: var(--red-600); }
+        .feature-icon-indigo { background: linear-gradient(135deg, #e0e7ff, #c7d2fe); color: var(--indigo-700); }
+        .feature-title { font-size: 18px; font-weight: 700; color: var(--gray-900); margin-bottom: 8px; }
+        .feature-desc { font-size: 14px; color: var(--gray-500); line-height: 1.7; }
+
+        /* How It Works */
+        .hiw-section { background: linear-gradient(180deg, var(--gray-50), white); }
+        .hiw-grid {
+            display: grid; grid-template-columns: 1fr; gap: 32px;
+        }
+        @media (min-width: 768px) { .hiw-grid { grid-template-columns: repeat(4, 1fr); } }
+        .hiw-step {
+            text-align: center; padding: 24px 16px; position: relative;
+        }
+        .hiw-step-number {
+            width: 56px; height: 56px; border-radius: 50%; margin: 0 auto 20px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px; font-weight: 800;
+            background: linear-gradient(135deg, var(--brand-500), var(--purple-500));
+            color: white; box-shadow: 0 8px 24px rgba(59,130,246,0.25);
+        }
+        .hiw-step-title { font-size: 16px; font-weight: 700; color: var(--gray-900); margin-bottom: 6px; }
+        .hiw-step-desc { font-size: 14px; color: var(--gray-500); line-height: 1.6; }
+        @media (min-width: 768px) {
+            .hiw-step::after {
+                content: ''; position: absolute; top: 52px; right: -16px;
+                width: 32px; height: 2px;
+                background: linear-gradient(90deg, var(--brand-300), var(--purple-300));
+            }
+            .hiw-step:last-child::after { display: none; }
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            background: linear-gradient(135deg, #0f172a, #1e3a5f);
+            padding: 64px 24px;
+        }
+        .stats-inner {
+            max-width: 1280px; margin: 0 auto;
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 32px;
+        }
+        @media (min-width: 768px) { .stats-inner { grid-template-columns: repeat(4, 1fr); } }
+        .stat-item { text-align: center; }
+        .stat-item-value {
+            font-size: clamp(32px, 5vw, 48px); font-weight: 800;
+            background: linear-gradient(135deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .stat-item-label { font-size: 14px; color: rgba(255,255,255,0.6); margin-top: 4px; font-weight: 500; }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 100px 24px; text-align: center;
+            background: linear-gradient(180deg, white, var(--brand-50));
+        }
+        .cta-title {
+            font-size: clamp(28px, 4vw, 40px); font-weight: 800; color: var(--gray-900);
+            margin-bottom: 16px; letter-spacing: -0.02em;
+        }
+        .cta-subtitle {
+            font-size: 17px; color: var(--gray-500); max-width: 500px;
+            margin: 0 auto 36px; line-height: 1.7;
+        }
+
+        /* Footer */
+        .landing-footer {
+            background: var(--gray-900); padding: 48px 24px 32px; color: rgba(255,255,255,0.5);
+        }
+        .footer-inner {
+            max-width: 1280px; margin: 0 auto;
+            display: flex; flex-direction: column; align-items: center; gap: 24px;
+        }
+        @media (min-width: 768px) { .footer-inner { flex-direction: row; justify-content: space-between; } }
+        .footer-logo { display: flex; align-items: center; gap: 10px; }
+        .footer-logo-icon {
+            background: var(--brand-600); color: white; padding: 8px;
+            border-radius: 10px; display: flex; align-items: center; justify-content: center;
+        }
+        .footer-logo-text { font-weight: 700; font-size: 18px; color: white; }
+        .footer-links { display: flex; gap: 24px; flex-wrap: wrap; justify-content: center; }
+        .footer-link { font-size: 14px; color: rgba(255,255,255,0.5); transition: color 0.3s; cursor: pointer; }
+        .footer-link:hover { color: white; }
+        .footer-copy { font-size: 13px; color: rgba(255,255,255,0.3); text-align: center; margin-top: 32px; }
+
+        /* Landing page needs body bg reset */
+        .landing-active { background: white; }
+        .landing-active .main-content { padding: 0; max-width: 100%; }
+
+        @media (max-width: 767px) {
+            .landing-nav-links .landing-nav-link { display: none; }
+            .hero-image-card { transform: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ============ LANDING NAVBAR ============ -->
+    <nav id="navbar-landing" class="navbar-landing hidden">
+        <div class="navbar-inner">
+            <div class="navbar-logo" onclick="navigate('landing')" style="cursor:pointer">
+                <div class="navbar-logo-icon">
+                    <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-2-2.2-3.2C13 5.9 12 5 10.8 5H5.6c-1.1 0-2.1.6-2.7 1.5L1 10v6c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>
+                </div>
+                <span class="navbar-logo-text">ParkSpace</span>
+            </div>
+            <div class="landing-nav-links">
+                <button class="landing-nav-link" onclick="scrollToSection('features')">Features</button>
+                <button class="landing-nav-link" onclick="scrollToSection('how-it-works')">How It Works</button>
+                <button class="landing-cta-btn" onclick="navigate('login')">Get Started</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ============ USER NAVBAR ============ -->
+    <nav id="navbar-user" class="navbar hidden">
+        <div class="navbar-inner">
+            <div class="navbar-logo" onclick="navigate('dashboard')">
+                <div class="navbar-logo-icon">
+                    <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-2-2.2-3.2C13 5.9 12 5 10.8 5H5.6c-1.1 0-2.1.6-2.7 1.5L1 10v6c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>
+                </div>
+                <span class="navbar-logo-text">ParkSpace</span>
+            </div>
+            <div class="navbar-actions">
+                <button onclick="navigate('dashboard')" class="nav-btn" data-nav="slots">
+                    <svg class="icon icon-sm" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                    <span>Slots</span>
+                </button>
+                <button onclick="navigate('profile')" class="nav-btn" data-nav="bookings">
+                    <svg class="icon icon-sm" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+                    <span>My Bookings</span>
+                </button>
+                <div class="nav-divider"></div>
+                <span id="navUserName" class="nav-user-name"></span>
+                <button onclick="logout()" class="nav-logout" title="Logout">
+                    <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ============ ADMIN NAVBAR ============ -->
+    <nav id="navbar-admin" class="navbar-admin hidden">
+        <div class="navbar-inner">
+            <div class="navbar-logo" onclick="navigate('admin-dashboard')">
+                <div class="navbar-logo-icon">
+                    <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </div>
+                <span class="navbar-logo-text">ParkSpace <span class="navbar-logo-sub">Admin</span></span>
+            </div>
+            <div class="navbar-actions">
+                <button onclick="navigate('admin-dashboard')" class="admin-nav-btn" data-nav="dashboard">
+                    <svg class="icon icon-sm" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+                    <span>Dashboard</span>
+                </button>
+                <button onclick="navigate('admin-slots')" class="admin-nav-btn" data-nav="slots">
+                    <svg class="icon icon-sm" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="2" width="6" height="6" rx="1"/><rect x="9" y="2" width="6" height="6" rx="1"/><rect x="16" y="2" width="6" height="6" rx="1"/><rect x="2" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/><rect x="16" y="9" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="9" y="16" width="6" height="6" rx="1"/><rect x="16" y="16" width="6" height="6" rx="1"/></svg>
+                    <span>Manage Slots</span>
+                </button>
+                <button onclick="navigate('admin-reservations')" class="admin-nav-btn" data-nav="reservations">
+                    <svg class="icon icon-sm" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 7h10"/><path d="M7 12h10"/><path d="M7 17h6"/></svg>
+                    <span>Reservations</span>
+                </button>
+                <div class="nav-divider"></div>
+                <span id="adminNavName" class="nav-user-name"></span>
+                <button onclick="logout()" class="nav-logout" title="Logout">
+                    <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ==================== MAIN CONTENT ==================== -->
+    <main class="main-content">
+
+        <!-- ==================== VIEW: LANDING PAGE ==================== -->
+        <div id="view-landing" class="view-section hidden">
+
+            <!-- HERO -->
+            <section class="hero">
+                <div class="hero-bg-image"></div>
+                <div class="hero-bg-overlay"></div>
+                <div class="hero-particles">
+                    <div class="hero-particle"></div>
+                    <div class="hero-particle"></div>
+                    <div class="hero-particle"></div>
+                </div>
+                <div class="hero-content">
+                    <div>
+                        <div class="hero-badge">
+                            <span class="hero-badge-dot"></span>
+                            Smart Parking System — Live Now
+                        </div>
+                        <h1 class="hero-title">
+                            Find & Reserve<br>
+                            Parking <span class="hero-title-gradient">Instantly</span>
+                        </h1>
+                        <p class="hero-subtitle">
+                            Skip the stress of hunting for parking. ParkSpace lets you browse real-time slot availability, reserve your spot in seconds, and manage bookings — all from your browser.
+                        </p>
+                        <div class="hero-actions">
+                            <button class="hero-btn-primary" onclick="navigate('login')">
+                                <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                                Get Started Free
+                            </button>
+                            <button class="hero-btn-secondary" onclick="scrollToSection('features')">
+                                <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                                Learn More
+                            </button>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="hero-image-card">
+                            <img src="https://raw.githubusercontent.com/sabs-27/images/main/ChatGPT%20Image%20Apr%2017%2C%202026%2C%2007_02_49%20PM.png" alt="ParkSpace Smart Parking Dashboard Preview">
+                            <div class="hero-image-glow"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- FEATURES -->
+            <section id="features" class="landing-section">
+                <span class="section-eyebrow">
+                    <svg class="icon icon-sm" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                    Features
+                </span>
+                <h2 class="section-title">Everything you need to park smarter</h2>
+                <p class="section-subtitle">From real-time availability to secure reservations, ParkSpace handles every aspect of the parking experience.</p>
+
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon feature-icon-blue">
+                            <svg class="icon-lg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                        </div>
+                        <h3 class="feature-title">Real-Time Slot View</h3>
+                        <p class="feature-desc">See available and occupied parking slots instantly with a color-coded interactive grid.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon feature-icon-emerald">
+                            <svg class="icon-lg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                        </div>
+                        <h3 class="feature-title">Instant Reservations</h3>
+                        <p class="feature-desc">Select a slot, pick your time, and confirm — your spot is reserved in seconds with zero hassle.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon feature-icon-red">
+                            <svg class="icon-lg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+                        </div>
+                        <h3 class="feature-title">Double-Booking Prevention</h3>
+                        <p class="feature-desc">Row-level database locks ensure no two users can ever reserve the same slot simultaneously.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon feature-icon-purple">
+                            <svg class="icon-lg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        </div>
+                        <h3 class="feature-title">Secure Authentication</h3>
+                        <p class="feature-desc">JWT-based login with bcrypt password hashing keeps user accounts safe and sessions secure.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon feature-icon-amber">
+                            <svg class="icon-lg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+                        </div>
+                        <h3 class="feature-title">Admin Dashboard</h3>
+                        <p class="feature-desc">Administrators get a powerful overview with stats, slot management, and full reservation history.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon feature-icon-indigo">
+                            <svg class="icon-lg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                        </div>
+                        <h3 class="feature-title">Fully Responsive</h3>
+                        <p class="feature-desc">Works beautifully on desktop, tablet, and mobile devices — park from anywhere, anytime.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- HOW IT WORKS -->
+            <section id="how-it-works" class="hiw-section">
+                <div class="landing-section">
+                    <span class="section-eyebrow">
+                        <svg class="icon icon-sm" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                        How It Works
+                    </span>
+                    <h2 class="section-title">Park in 4 simple steps</h2>
+                    <p class="section-subtitle">From sign-up to parked in under a minute. Here's how ParkSpace makes it effortless.</p>
+
+                    <div class="hiw-grid">
+                        <div class="hiw-step">
+                            <div class="hiw-step-number">1</div>
+                            <h4 class="hiw-step-title">Create Account</h4>
+                            <p class="hiw-step-desc">Sign up with your name, email and password. Takes less than 30 seconds.</p>
+                        </div>
+                        <div class="hiw-step">
+                            <div class="hiw-step-number">2</div>
+                            <h4 class="hiw-step-title">Browse Slots</h4>
+                            <p class="hiw-step-desc">View the real-time parking grid. Green means available, gray means taken.</p>
+                        </div>
+                        <div class="hiw-step">
+                            <div class="hiw-step-number">3</div>
+                            <h4 class="hiw-step-title">Reserve Your Spot</h4>
+                            <p class="hiw-step-desc">Pick your date, time, and duration. Enter your vehicle plate and confirm.</p>
+                        </div>
+                        <div class="hiw-step">
+                            <div class="hiw-step-number">4</div>
+                            <h4 class="hiw-step-title">You're Parked!</h4>
+                            <p class="hiw-step-desc">Get confirmation instantly. Manage or cancel your bookings anytime you want.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- STATS BAR -->
+            <section class="stats-bar">
+                <div class="stats-inner">
+                    <div class="stat-item">
+                        <div class="stat-item-value">24</div>
+                        <div class="stat-item-label">Parking Slots</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-item-value">3</div>
+                        <div class="stat-item-label">Parking Zones</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-item-value">$5</div>
+                        <div class="stat-item-label">Per Hour Rate</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-item-value">24/7</div>
+                        <div class="stat-item-label">Always Available</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CTA -->
+            <section class="cta-section">
+                <h2 class="cta-title">Ready to park stress-free?</h2>
+                <p class="cta-subtitle">Join ParkSpace today and never circle the lot again. Create your free account and reserve your first spot in under a minute.</p>
+                <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
+                    <button class="hero-btn-primary" onclick="navigate('login')" style="font-size:15px;padding:14px 28px">
+                        <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+                        Create Free Account
+                    </button>
+                    <button class="hero-btn-secondary" onclick="navigate('login')" style="font-size:15px;padding:14px 28px;color:var(--gray-700);border-color:var(--gray-300);background:white;box-shadow:var(--shadow-sm)">
+                        <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+                        Sign In
+                    </button>
+                </div>
+            </section>
+
+            <!-- FOOTER -->
+            <footer class="landing-footer">
+                <div class="footer-inner">
+                    <div class="footer-logo">
+                        <div class="footer-logo-icon">
+                            <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-2-2.2-3.2C13 5.9 12 5 10.8 5H5.6c-1.1 0-2.1.6-2.7 1.5L1 10v6c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>
+                        </div>
+                        <span class="footer-logo-text">ParkSpace</span>
+                    </div>
+                    <div class="footer-links">
+                        <span class="footer-link" onclick="scrollToSection('features')">Features</span>
+                        <span class="footer-link" onclick="scrollToSection('how-it-works')">How It Works</span>
+                        <span class="footer-link" onclick="navigate('login')">Sign In</span>
+                    </div>
+                </div>
+                <p class="footer-copy">&copy; 2026 ParkSpace</p>
+            </footer>
+
+        </div>
+
+        <!-- ==================== VIEW: LOGIN ==================== -->
+        <div id="view-login" class="view-section login-container">
+            <div class="login-card fade-in">
+                <div class="text-center" style="margin-bottom:24px">
+                    <div class="login-logo">
+                        <svg class="icon-xl" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9 17V7h4a3 3 0 0 1 0 6H9"/></svg>
+                    </div>
+                    <h2 class="login-title">Welcome to ParkSpace</h2>
+                    <p class="login-sub">Choose your role to get started</p>
+                </div>
+
+                <!-- Role Toggle -->
+                <div class="role-toggle">
+                    <button onclick="switchRole('user')" id="role-user" class="role-tab active-user">
+                        <svg class="icon icon-sm" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        User
+                    </button>
+                    <button onclick="switchRole('admin')" id="role-admin" class="role-tab">
+                        <svg class="icon icon-sm" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        Admin
+                    </button>
+                </div>
+
+                <!-- Auth Tabs (User only) -->
+                <div id="authTabContainer" class="auth-toggle">
+                    <button onclick="switchAuthTab('login')" id="tab-login" class="auth-tab active">Sign In</button>
+                    <button onclick="switchAuthTab('register')" id="tab-register" class="auth-tab">Register</button>
+                </div>
+
+                <!-- Role Banner -->
+                <div id="roleBanner" class="role-banner user-banner">
+                    <span id="roleBannerText">Sign in to browse & reserve parking slots</span>
+                </div>
+
+                <!-- Login Form -->
+                <form id="loginForm" onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label class="form-label">Email address</label>
+                        <div class="input-wrapper">
+                            <div class="input-icon"><svg class="icon icon-sm" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></div>
+                            <input type="email" id="login-email" required class="form-input" placeholder="user@example.com">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <div class="input-wrapper">
+                            <div class="input-icon"><svg class="icon icon-sm" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+                            <input type="password" id="login-password" required class="form-input" placeholder="••••••••">
+                        </div>
+                    </div>
+                    <div id="login-error" class="error-box hidden" style="margin-bottom:16px"></div>
+                    <button type="submit" id="login-btn" class="btn btn-brand">
+                        Sign In <svg class="icon icon-sm" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                    </button>
+                </form>
+
+                <!-- Register Form -->
+                <form id="registerForm" class="hidden" onsubmit="handleRegister(event)">
+                    <div class="form-group">
+                        <label class="form-label">Full Name</label>
+                        <div class="input-wrapper">
+                            <div class="input-icon"><svg class="icon icon-sm" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+                            <input type="text" id="reg-name" required class="form-input" placeholder="John Doe">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email address</label>
+                        <div class="input-wrapper">
+                            <div class="input-icon"><svg class="icon icon-sm" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></div>
+                            <input type="email" id="reg-email" required class="form-input" placeholder="user@example.com">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Password (min 6 chars)</label>
+                        <div class="input-wrapper">
+                            <div class="input-icon"><svg class="icon icon-sm" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+                            <input type="password" id="reg-password" required minlength="6" class="form-input" placeholder="••••••••">
+                        </div>
+                    </div>
+                    <div id="register-error" class="error-box hidden" style="margin-bottom:16px"></div>
+                    <button type="submit" id="register-btn" class="btn btn-emerald">
+                        Create Account <svg class="icon icon-sm" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- ==================== USER: SLOTS DASHBOARD ==================== -->
+        <div id="view-dashboard" class="view-section hidden fade-in">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">Parking Slots</h1>
+                    <p class="page-subtitle">Browse available spots and reserve instantly</p>
+                </div>
+                <div class="filter-bar">
+                    <div class="filter-group">
+                        <svg class="icon icon-sm" style="color:var(--gray-500)" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        <input type="date" id="filterDate">
+                    </div>
+                    <div class="filter-group">
+                        <svg class="icon icon-sm" style="color:var(--gray-500)" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        <input type="time" id="filterTime">
+                    </div>
+                    <button class="filter-btn" onclick="renderSlots()">
+                        <svg class="icon icon-sm" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Location Info -->
+            <div class="location-card">
+                <div class="location-item">
+                    <div class="location-icon location-icon-blue">
+                        <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    </div>
+                    <div>
+                        <p class="location-title">Location</p>
+                        <p class="location-value">ParkSpace Campus Lot</p>
+                        <p class="location-sub">123 University Drive, Building A</p>
+                    </div>
+                </div>
+                <div class="location-item">
+                    <div class="location-icon location-icon-green">
+                        <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    </div>
+                    <div>
+                        <p class="location-title">Operating Hours</p>
+                        <p class="location-value">Open 24/7</p>
+                        <p class="location-sub">Reservations available anytime</p>
+                    </div>
+                </div>
+                <div class="location-item">
+                    <div class="location-icon location-icon-purple">
+                        <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    </div>
+                    <div>
+                        <p class="location-title">Pricing</p>
+                        <p class="location-value">$5.00 / hour</p>
+                        <p class="location-sub">3 Zones · 24 Total Slots</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Legend -->
+            <div class="legend">
+                <div class="legend-item"><div class="legend-dot legend-dot-green"></div><span class="text-sm font-medium text-gray-600">Available</span></div>
+                <div class="legend-item"><div class="legend-dot legend-dot-red"></div><span class="text-sm font-medium text-gray-600">Occupied</span></div>
+            </div>
+
+            <!-- Slots grouped by zone -->
+            <div id="slotsGrid"></div>
+        </div>
+
+        <!-- ==================== USER: RESERVATION FORM ==================== -->
+        <div id="view-reservation" class="view-section hidden fade-in">
+            <button onclick="navigate('dashboard')" class="btn-link flex items-center gap-2" style="margin-bottom:24px;font-size:14px">
+                <svg class="icon icon-sm" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg> Back to Slots
+            </button>
+            <div class="card" style="max-width:800px;margin:0 auto">
+                <div class="res-header"><h2>Complete Reservation</h2></div>
+                <div class="res-body">
+                    <div class="res-layout">
+                        <div class="res-layout-left">
+                            <div class="res-slot-badge" style="height:100%">
+                                <span class="res-slot-label">Selected Slot</span>
+                                <h3 id="res-slot-id" class="res-slot-id">A-1</h3>
+                                <span class="res-slot-status">Available</span>
+                            </div>
+                        </div>
+                        <div class="res-layout-right">
+                            <form id="reservationForm" onsubmit="confirmReservation(event)">
+                                <input type="hidden" id="selectedSlotIdInput">
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label class="form-label">Date</label>
+                                        <div class="input-wrapper">
+                                            <div class="input-icon"><svg class="icon icon-sm" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+                                            <input type="date" id="res-date" required class="form-input">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Vehicle Plate No.</label>
+                                        <div class="input-wrapper">
+                                            <div class="input-icon"><svg class="icon icon-sm" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-2-2.2-3.2C13 5.9 12 5 10.8 5H5.6c-1.1 0-2.1.6-2.7 1.5L1 10v6c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg></div>
+                                            <input type="text" id="res-plate" required placeholder="XYZ 1234" class="form-input" style="text-transform:uppercase">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Start Time</label>
+                                        <input type="time" id="res-start" required class="form-select">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Duration (Hours)</label>
+                                        <select id="res-duration" class="form-select">
+                                            <option value="1">1 Hour</option>
+                                            <option value="2">2 Hours</option>
+                                            <option value="3">3 Hours</option>
+                                            <option value="4">4 Hours</option>
+                                            <option value="8">Full Day (8 Hours)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="cost-box">
+                                    <div class="flex justify-between items-center">
+                                        <span class="cost-label">Estimated Cost</span>
+                                        <span class="cost-value" id="res-cost">$5.00</span>
+                                    </div>
+                                    <p class="cost-rate">Rate: $5.00/hour. Payable upon exit.</p>
+                                </div>
+                                <div id="reservation-error" class="error-box hidden" style="margin-top:16px"></div>
+                                <button type="submit" id="reserve-btn" class="btn btn-emerald" style="margin-top:24px">
+                                    <svg class="icon icon-sm" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                                    Confirm Reservation
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== USER: MY BOOKINGS ==================== -->
+        <div id="view-profile" class="view-section hidden fade-in">
+            <h1 class="page-title">My Bookings</h1>
+            <p class="page-subtitle" style="margin-bottom:32px">Manage your current and upcoming parking reservations</p>
+            <div id="userBookingsList" class="grid md-grid-2 lg-grid-3"></div>
+            <div id="emptyBookings" class="empty-state hidden">
+                <svg class="icon-xxl" style="color:var(--gray-300)" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="10" y1="14" x2="14" y2="18"/><line x1="14" y1="14" x2="10" y2="18"/></svg>
+                <h3>No active bookings</h3>
+                <p>You don't have any upcoming parking reservations.</p>
+                <button onclick="navigate('dashboard')" class="btn btn-ghost" style="width:auto">Find a Slot</button>
+            </div>
+        </div>
+
+        <!-- ==================== ADMIN: DASHBOARD ==================== -->
+        <div id="view-admin-dashboard" class="view-section hidden fade-in">
+            <div style="margin-bottom:32px">
+                <h1 class="page-title">Admin Dashboard</h1>
+                <p class="page-subtitle">Overview of parking system operations</p>
+            </div>
+            <div class="grid grid-2 lg-grid-4" style="margin-bottom:32px">
+                <div class="stat-card">
+                    <div><p class="stat-label">Total Slots</p><p class="stat-value text-gray-900" id="stat-total">0</p></div>
+                    <div class="stat-icon" style="background:var(--gray-100);color:var(--gray-600)"><svg class="icon-lg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/></svg></div>
+                </div>
+                <div class="stat-card">
+                    <div><p class="stat-label">Available</p><p class="stat-value text-emerald" id="stat-available">0</p></div>
+                    <div class="stat-icon" style="background:var(--emerald-50);color:var(--emerald-600)"><svg class="icon-lg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+                </div>
+                <div class="stat-card">
+                    <div><p class="stat-label">Occupied</p><p class="stat-value text-red" id="stat-occupied">0</p></div>
+                    <div class="stat-icon" style="background:var(--red-50);color:var(--red-600)"><svg class="icon-lg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></div>
+                </div>
+                <div class="stat-card">
+                    <div><p class="stat-label">Registered Users</p><p class="stat-value text-purple" id="stat-users">0</p></div>
+                    <div class="stat-icon" style="background:var(--purple-50);color:var(--purple-600)"><svg class="icon-lg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+                </div>
+            </div>
+            <div class="grid lg-grid-3" style="gap:24px">
+                <div class="card card-padded">
+                    <h3 class="text-lg font-semibold text-gray-900" style="margin-bottom:16px">Quick Actions</h3>
+                    <div class="flex flex-col gap-3">
+                        <button onclick="navigate('admin-slots')" class="quick-action quick-action-indigo">
+                            <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="2" width="6" height="6" rx="1"/><rect x="9" y="2" width="6" height="6" rx="1"/><rect x="16" y="2" width="6" height="6" rx="1"/><rect x="2" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/><rect x="16" y="9" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="9" y="16" width="6" height="6" rx="1"/><rect x="16" y="16" width="6" height="6" rx="1"/></svg>
+                            Manage Parking Slots
+                        </button>
+                        <button onclick="navigate('admin-reservations')" class="quick-action quick-action-amber">
+                            <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 7h10"/><path d="M7 12h10"/><path d="M7 17h6"/></svg>
+                            View All Reservations
+                        </button>
+                    </div>
+                </div>
+                <div class="card card-padded lg-col-span-2">
+                    <h3 class="text-lg font-semibold text-gray-900" style="margin-bottom:16px">Recent Reservations</h3>
+                    <div id="adminRecentBookings" class="flex flex-col gap-3"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== ADMIN: MANAGE SLOTS ==================== -->
+        <div id="view-admin-slots" class="view-section hidden fade-in">
+            <div class="flex justify-between items-center" style="margin-bottom:24px">
+                <div><h1 class="page-title">Manage Slots</h1><p class="page-subtitle">Toggle slot availability and view vehicle assignments</p></div>
+                <button onclick="navigate('admin-dashboard')" class="btn-link flex items-center gap-1 text-sm">
+                    <svg class="icon icon-sm" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg> Back
+                </button>
+            </div>
+            <div class="card overflow-hidden">
+                <div style="overflow-x:auto">
+                    <table class="data-table">
+                        <thead><tr><th>Slot ID</th><th>Status</th><th>Current Vehicle</th><th class="text-right">Action</th></tr></thead>
+                        <tbody id="adminSlotsTable"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== ADMIN: ALL RESERVATIONS ==================== -->
+        <div id="view-admin-reservations" class="view-section hidden fade-in">
+            <div class="flex justify-between items-center" style="margin-bottom:24px">
+                <div><h1 class="page-title">All Reservations</h1><p class="page-subtitle">View all user bookings across the system</p></div>
+                <button onclick="navigate('admin-dashboard')" class="btn-link flex items-center gap-1 text-sm">
+                    <svg class="icon icon-sm" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg> Back
+                </button>
+            </div>
+            <div class="card overflow-hidden">
+                <div style="overflow-x:auto">
+                    <table class="data-table">
+                        <thead><tr><th>Booking ID</th><th>User</th><th>Slot</th><th>Date</th><th>Time</th><th>Vehicle</th><th>Cost</th><th>Status</th><th class="text-right">Action</th></tr></thead>
+                        <tbody id="adminReservationsTable"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ==================== TOAST ==================== -->
+    <div id="toast" class="toast">
+        <span id="toastIcon"></span>
+        <span id="toastMessage">Message</span>
+    </div>
+
+    <!-- ==================== JAVASCRIPT ==================== -->
+    <script>
+        // ── SVG Icon strings (reusable) ─────────────────────────
+        const ICONS = {
+            check: '<svg class="icon" style="color:var(--emerald-400)" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+            error: '<svg class="icon" style="color:var(--red-400)" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
+            info: '<svg class="icon" style="color:var(--brand-500)" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>',
+            car: '<svg class="icon icon-sm" style="color:var(--gray-400)" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-2-2.2-3.2C13 5.9 12 5 10.8 5H5.6c-1.1 0-2.1.6-2.7 1.5L1 10v6c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>',
+            calendar: '<svg class="icon icon-sm" style="color:var(--gray-400)" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
+            clock: '<svg class="icon icon-sm" style="color:var(--gray-400)" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+            trash: '<svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>',
+            carFront: '<svg class="icon" style="color:var(--gray-400)" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m21 8-2 2-1.5-3.7A2 2 0 0 0 15.65 5H8.35a2 2 0 0 0-1.84 1.3L5 10 3 8"/><path d="M7 14h.01"/><path d="M17 14h.01"/><rect x="1" y="10" width="22" height="8" rx="2"/><path d="M6 18v2"/><path d="M18 18v2"/></svg>',
+            checkSmall: '<svg class="icon icon-sm" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>',
+            x: '<svg class="icon icon-sm" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'
+        };
+
+        // ── State ───────────────────────────────────────────────
+        let selectedRole = 'user';
+
+        // ── Auth helpers ────────────────────────────────────────
+        function getToken() { return localStorage.getItem('parkspace_token'); }
+        function getUser() { const u = localStorage.getItem('parkspace_user'); return u ? JSON.parse(u) : null; }
+        function saveAuth(t, u) { localStorage.setItem('parkspace_token', t); localStorage.setItem('parkspace_user', JSON.stringify(u)); }
+        function clearAuth() { localStorage.removeItem('parkspace_token'); localStorage.removeItem('parkspace_user'); }
+
+        async function api(method, endpoint, body) {
+            const opts = { method, headers: { 'Content-Type': 'application/json' } };
+            const token = getToken();
+            if (token) opts.headers['Authorization'] = 'Bearer ' + token;
+            if (body) opts.body = JSON.stringify(body);
+            const res = await fetch(endpoint, opts);
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Something went wrong');
+            return data;
+        }
+
+        // ── Login Page: Role & Auth Toggles ─────────────────────
+        function switchRole(role) {
+            selectedRole = role;
+            const userTab = document.getElementById('role-user');
+            const adminTab = document.getElementById('role-admin');
+            const authTabs = document.getElementById('authTabContainer');
+            const banner = document.getElementById('roleBanner');
+            const bannerText = document.getElementById('roleBannerText');
+            const loginBtn = document.getElementById('login-btn');
+
+            userTab.className = 'role-tab';
+            adminTab.className = 'role-tab';
+
+            if (role === 'user') {
+                userTab.classList.add('active-user');
+                authTabs.classList.remove('hidden');
+                banner.className = 'role-banner user-banner';
+                bannerText.textContent = 'Sign in to browse & reserve parking slots';
+                loginBtn.className = 'btn btn-brand';
+                loginBtn.innerHTML = 'Sign In <svg class="icon icon-sm" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>';
+                switchAuthTab('login');
+            } else {
+                adminTab.classList.add('active-admin');
+                authTabs.classList.add('hidden');
+                document.getElementById('loginForm').classList.remove('hidden');
+                document.getElementById('registerForm').classList.add('hidden');
+                banner.className = 'role-banner admin-banner';
+                bannerText.textContent = 'Admin access — manage slots & view all reservations';
+                loginBtn.className = 'btn btn-purple';
+                loginBtn.innerHTML = '<svg class="icon icon-sm" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Admin Sign In';
+            }
+            document.getElementById('login-error').classList.add('hidden');
+            document.getElementById('register-error').classList.add('hidden');
+        }
+
+        function switchAuthTab(tab) {
+            document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+            document.getElementById('tab-register').classList.toggle('active', tab === 'register');
+            document.getElementById('loginForm').classList.toggle('hidden', tab !== 'login');
+            document.getElementById('registerForm').classList.toggle('hidden', tab !== 'register');
+        }
+
+        // ── Navigation ──────────────────────────────────────────
+        function navigate(viewId) {
+            document.querySelectorAll('.view-section').forEach(function(el) { el.classList.add('hidden'); });
+            var viewEl = document.getElementById('view-' + viewId);
+            if (viewEl) viewEl.classList.remove('hidden');
+
+            var user = getUser();
+            var landingNav = document.getElementById('navbar-landing');
+            var userNav = document.getElementById('navbar-user');
+            var adminNav = document.getElementById('navbar-admin');
+
+            // Hide all navbars first
+            landingNav.classList.add('hidden');
+            userNav.classList.add('hidden');
+            adminNav.classList.add('hidden');
+
+            // Toggle landing page body class
+            if (viewId === 'landing') {
+                document.body.classList.add('landing-active');
+                landingNav.classList.remove('hidden');
+                window.scrollTo(0, 0);
+            } else {
+                document.body.classList.remove('landing-active');
+            }
+
+            if (viewId === 'login') {
+                // No navbar on login
+            } else if (user && user.role === 'admin') {
+                adminNav.classList.remove('hidden');
+                document.getElementById('adminNavName').textContent = user.name;
+                document.querySelectorAll('.admin-nav-btn').forEach(function(btn) {
+                    btn.classList.remove('active');
+                    var nav = btn.getAttribute('data-nav');
+                    if (viewId.indexOf(nav) > -1) btn.classList.add('active');
+                });
+            } else if (user) {
+                userNav.classList.remove('hidden');
+                document.getElementById('navUserName').textContent = user.name;
+                document.querySelectorAll('.nav-btn').forEach(function(btn) {
+                    btn.classList.remove('active');
+                    var nav = btn.getAttribute('data-nav');
+                    if ((nav === 'slots' && viewId === 'dashboard') || (nav === 'bookings' && viewId === 'profile')) {
+                        btn.classList.add('active');
+                    }
+                });
+            }
+
+            if (viewId === 'dashboard') renderSlots();
+            if (viewId === 'profile') renderBookings();
+            if (viewId === 'admin-dashboard') renderAdminDashboard();
+            if (viewId === 'admin-slots') renderAdminSlots();
+            if (viewId === 'admin-reservations') renderAdminReservations();
+        }
+
+        // ── Landing Page Scroll Helpers ──────────────────────────
+        function scrollToSection(sectionId) {
+            var el = document.getElementById(sectionId);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // Navbar transparency on scroll
+        window.addEventListener('scroll', function() {
+            var landingNav = document.getElementById('navbar-landing');
+            if (!landingNav.classList.contains('hidden')) {
+                if (window.scrollY > 60) {
+                    landingNav.classList.add('scrolled');
+                } else {
+                    landingNav.classList.remove('scrolled');
+                }
+            }
+        });
+
+        function showToast(message, type) {
+            type = type || 'success';
+            var toast = document.getElementById('toast');
+            document.getElementById('toastMessage').textContent = message;
+            document.getElementById('toastIcon').innerHTML = type === 'success' ? ICONS.check : type === 'error' ? ICONS.error : ICONS.info;
+            toast.classList.add('show');
+            setTimeout(function() { toast.classList.remove('show'); }, 3000);
+        }
+
+        // ── Auth ────────────────────────────────────────────────
+        async function handleLogin(e) {
+            e.preventDefault();
+            var email = document.getElementById('login-email').value;
+            var password = document.getElementById('login-password').value;
+            var errorEl = document.getElementById('login-error');
+            var btn = document.getElementById('login-btn');
+            errorEl.classList.add('hidden');
+            var origHTML = btn.innerHTML;
+            btn.innerHTML = '<span class="spinner"></span> Signing in...';
+            btn.disabled = true;
+            try {
+                var data = await api('POST', '/api/login', { email: email, password: password });
+                if (selectedRole === 'admin' && data.user.role !== 'admin') throw new Error('This account does not have admin privileges.');
+                if (selectedRole === 'user' && data.user.role === 'admin') throw new Error('Admin accounts must use the Admin login.');
+                saveAuth(data.token, data.user);
+                showToast('Welcome back, ' + data.user.name + '!');
+                navigate(data.user.role === 'admin' ? 'admin-dashboard' : 'dashboard');
+            } catch (err) {
+                errorEl.textContent = err.message;
+                errorEl.classList.remove('hidden');
+            } finally {
+                btn.innerHTML = origHTML;
+                btn.disabled = false;
+            }
+        }
+
+        async function handleRegister(e) {
+            e.preventDefault();
+            var name = document.getElementById('reg-name').value;
+            var email = document.getElementById('reg-email').value;
+            var password = document.getElementById('reg-password').value;
+            var errorEl = document.getElementById('register-error');
+            var btn = document.getElementById('register-btn');
+            errorEl.classList.add('hidden');
+            btn.innerHTML = '<span class="spinner"></span> Creating account...';
+            btn.disabled = true;
+            try {
+                var data = await api('POST', '/api/register', { name: name, email: email, password: password });
+                saveAuth(data.token, data.user);
+                showToast('Account created! Welcome to ParkSpace.');
+                navigate('dashboard');
+            } catch (err) {
+                errorEl.textContent = err.message;
+                errorEl.classList.remove('hidden');
+            } finally {
+                btn.innerHTML = 'Create Account <svg class="icon icon-sm" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>';
+                btn.disabled = false;
+            }
+        }
+
+        function logout() {
+            clearAuth();
+            showToast('Logged out successfully.', 'info');
+            navigate('landing');
+        }
+
+        // ── USER: Render Slots ──────────────────────────────────
+        async function renderSlots() {
+            var container = document.getElementById('slotsGrid');
+            container.innerHTML = '<div style="text-align:center;padding:48px 0"><span class="spinner"></span></div>';
+            try {
+                var slots = await api('GET', '/api/slots');
+                // Group by zone
+                var zones = {};
+                slots.forEach(function(slot) {
+                    var zone = slot.id.split('-')[0];
+                    if (!zones[zone]) zones[zone] = [];
+                    zones[zone].push(slot);
+                });
+
+                var zoneColors = { A: 'a', B: 'b', C: 'c' };
+                var zoneNames = { A: 'Ground Level', B: 'Level 1', C: 'Level 2' };
+                var carIcon = '<svg class="icon icon-sm" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-2-2.2-3.2C13 5.9 12 5 10.8 5H5.6c-1.1 0-2.1.6-2.7 1.5L1 10v6c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>';
+                var checkIcon = '<svg class="icon icon-sm" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>';
+
+                container.innerHTML = '';
+                Object.keys(zones).sort().forEach(function(zone) {
+                    var available = zones[zone].filter(function(s) { return s.status === 'available'; }).length;
+                    var section = document.createElement('div');
+                    section.className = 'zone-section';
+                    section.innerHTML = '<div class="zone-header">' +
+                        '<span class="zone-badge zone-badge-' + (zoneColors[zone] || 'a') + '">Zone ' + zone + '</span>' +
+                        '<span class="zone-label">' + (zoneNames[zone] || '') + ' — ' + available + ' of ' + zones[zone].length + ' available</span>' +
+                    '</div>';
+
+                    var grid = document.createElement('div');
+                    grid.className = 'zone-grid';
+
+                    zones[zone].forEach(function(slot) {
+                        var isAvail = slot.status === 'available';
+                        var el = document.createElement('div');
+                        el.className = 'slot ' + (isAvail ? 'slot-available' : 'slot-occupied');
+                        if (isAvail) el.onclick = function() { openReservation(slot.id); };
+                        el.innerHTML =
+                            '<div class="slot-icon-wrap ' + (isAvail ? 'slot-icon-avail' : 'slot-icon-occ') + '">' +
+                                (isAvail ? checkIcon : carIcon) +
+                            '</div>' +
+                            '<div class="slot-info">' +
+                                '<div class="slot-id">' + slot.id + '</div>' +
+                                '<div class="slot-status" style="color:' + (isAvail ? 'var(--emerald-600)' : 'var(--gray-400)') + '">' +
+                                    (isAvail ? 'Available' : (slot.vehicle ? slot.vehicle : 'Occupied')) +
+                                '</div>' +
+                            '</div>' +
+                            '<div class="slot-indicator ' + (isAvail ? '' : 'slot-indicator-off') + '"></div>';
+                        grid.appendChild(el);
+                    });
+
+                    section.appendChild(grid);
+                    container.appendChild(section);
+                });
+            } catch (err) {
+                container.innerHTML = '<div style="text-align:center;padding:48px 0;color:var(--red-500)">' + err.message + '</div>';
+            }
+        }
+
+        function openReservation(slotId) {
+            document.getElementById('res-slot-id').textContent = slotId;
+            document.getElementById('selectedSlotIdInput').value = slotId;
+            document.getElementById('reservation-error').classList.add('hidden');
+            document.getElementById('res-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('res-duration').onchange = updateCost;
+            updateCost();
+            navigate('reservation');
+        }
+
+        function updateCost() {
+            var hours = document.getElementById('res-duration').value;
+            document.getElementById('res-cost').textContent = '$' + (hours * 5).toFixed(2);
+        }
+
+        async function confirmReservation(e) {
+            e.preventDefault();
+            var slotId = document.getElementById('selectedSlotIdInput').value;
+            var date = document.getElementById('res-date').value;
+            var time = document.getElementById('res-start').value;
+            var duration = parseInt(document.getElementById('res-duration').value);
+            var plate = document.getElementById('res-plate').value;
+            var errorEl = document.getElementById('reservation-error');
+            var btn = document.getElementById('reserve-btn');
+            errorEl.classList.add('hidden');
+            btn.innerHTML = '<span class="spinner"></span> Reserving...';
+            btn.disabled = true;
+            try {
+                var data = await api('POST', '/api/reserve', { slotId: slotId, date: date, time: time, duration: duration, plate: plate });
+                showToast(data.message);
+                e.target.reset();
+                navigate('profile');
+            } catch (err) {
+                errorEl.textContent = err.message;
+                errorEl.classList.remove('hidden');
+                showToast(err.message, 'error');
+            } finally {
+                btn.innerHTML = '<svg class="icon icon-sm" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Confirm Reservation';
+                btn.disabled = false;
+            }
+        }
+
+        // ── USER: Render Bookings ───────────────────────────────
+        async function renderBookings() {
+            var list = document.getElementById('userBookingsList');
+            var emptyState = document.getElementById('emptyBookings');
+            list.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:48px 0"><span class="spinner"></span></div>';
+            emptyState.classList.add('hidden');
+            try {
+                var bookings = await api('GET', '/api/bookings');
+                list.innerHTML = '';
+                if (bookings.length === 0) {
+                    list.classList.add('hidden');
+                    emptyState.classList.remove('hidden');
+                } else {
+                    list.classList.remove('hidden');
+                    bookings.forEach(function(b) {
+                        var el = document.createElement('div');
+                        el.className = 'booking-card';
+                        el.innerHTML = '<div class="booking-card-accent"></div>' +
+                            '<div class="flex justify-between items-start" style="margin-bottom:16px">' +
+                                '<div><span class="badge-brand text-xs">ID: ' + b.id + '</span><h3 style="font-size:20px;font-weight:700;color:var(--gray-900);margin-top:8px">Slot ' + b.slot_id + '</h3></div>' +
+                                '<button onclick="cancelBooking(\'' + b.id + '\')" class="btn-icon-danger" title="Cancel Booking">' + ICONS.trash + '</button>' +
+                            '</div>' +
+                            '<div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--gray-100)">' +
+                                '<div class="flex items-center gap-2 text-sm text-gray-600" style="margin-bottom:8px">' + ICONS.calendar + ' ' + b.date + '</div>' +
+                                '<div class="flex items-center gap-2 text-sm text-gray-600" style="margin-bottom:8px">' + ICONS.clock + ' ' + b.time + ' (' + b.duration + ' hrs)</div>' +
+                                '<div class="flex justify-between items-center" style="margin-top:8px">' +
+                                    '<div class="flex items-center gap-2 text-sm font-medium text-gray-700 uppercase">' + ICONS.car + ' ' + b.plate + '</div>' +
+                                    '<span class="font-bold text-gray-900">' + b.cost + '</span>' +
+                                '</div>' +
+                            '</div>';
+                        list.appendChild(el);
+                    });
+                }
+            } catch (err) {
+                list.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--red-500)">' + err.message + '</div>';
+            }
+        }
+
+        async function cancelBooking(bookingId) {
+            if (confirm('Are you sure you want to cancel this reservation?')) {
+                try {
+                    await api('DELETE', '/api/reservation/' + bookingId);
+                    showToast('Reservation cancelled.', 'info');
+                    renderBookings();
+                } catch (err) { showToast(err.message, 'error'); }
+            }
+        }
+
+        // ── ADMIN: Dashboard ────────────────────────────────────
+        async function renderAdminDashboard() {
+            try {
+                var results = await Promise.all([api('GET', '/api/admin/stats'), api('GET', '/api/admin/reservations')]);
+                var stats = results[0]; var reservations = results[1];
+                document.getElementById('stat-total').textContent = stats.total;
+                document.getElementById('stat-available').textContent = stats.available;
+                document.getElementById('stat-occupied').textContent = stats.occupied;
+                document.getElementById('stat-users').textContent = stats.totalUsers;
+
+                var container = document.getElementById('adminRecentBookings');
+                var recent = reservations.slice(0, 5);
+                if (recent.length === 0) {
+                    container.innerHTML = '<p class="text-sm text-gray-400" style="text-align:center;padding:16px 0">No reservations yet</p>';
+                } else {
+                    container.innerHTML = recent.map(function(r) {
+                        return '<div class="recent-item">' +
+                            '<div class="flex items-center gap-3">' +
+                                '<div class="recent-avatar ' + (r.status === 'active' ? 'recent-avatar-active' : 'recent-avatar-cancelled') + '">' +
+                                    (r.status === 'active' ? ICONS.checkSmall : ICONS.x) +
+                                '</div>' +
+                                '<div><p class="text-sm font-medium text-gray-900">' + r.user_name + ' — Slot ' + r.slot_id + '</p>' +
+                                '<p class="text-xs text-gray-500">' + r.date + ' at ' + r.time + ' · ' + r.plate + '</p></div>' +
+                            '</div>' +
+                            '<div class="flex items-center gap-3">' +
+                                '<div style="text-align:right"><span class="text-sm font-bold text-gray-900">' + r.cost + '</span>' +
+                                '<span class="text-xs" style="display:block;color:' + (r.status === 'active' ? 'var(--emerald-600)' : 'var(--gray-400)') + '">' + r.status + '</span></div>' +
+                                '<button onclick="adminDeleteReservation(\'' + r.id + '\', \'dashboard\')" class="btn-icon-danger" title="Delete reservation">' + ICONS.trash + '</button>' +
+                            '</div>' +
+                        '</div>';
+                    }).join('');
+                }
+            } catch (err) { showToast(err.message, 'error'); }
+        }
+
+        // ── ADMIN: Manage Slots ─────────────────────────────────
+        async function renderAdminSlots() {
+            var table = document.getElementById('adminSlotsTable');
+            table.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:32px"><span class="spinner"></span></td></tr>';
+            try {
+                var slots = await api('GET', '/api/admin/slots');
+                table.innerHTML = '';
+                slots.forEach(function(slot) {
+                    var tr = document.createElement('tr');
+                    var badge = slot.status === 'available' ? '<span class="badge badge-green">Available</span>' : '<span class="badge badge-red">Occupied</span>';
+                    tr.innerHTML = '<td style="font-weight:500;color:var(--gray-900)">' + slot.id + '</td>' +
+                        '<td>' + badge + '</td>' +
+                        '<td>' + (slot.vehicle ? '<span class="badge-mono uppercase">' + slot.vehicle + '</span>' : '<span class="text-gray-400">-</span>') + '</td>' +
+                        '<td class="text-right"><button onclick="adminToggleSlot(\'' + slot.id + '\')" class="table-action ' + (slot.status === 'available' ? 'table-action-red' : 'table-action-green') + '">' +
+                            (slot.status === 'available' ? 'Mark Occupied' : 'Free Slot') + '</button></td>';
+                    table.appendChild(tr);
+                });
+            } catch (err) {
+                table.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:32px;color:var(--red-500)">' + err.message + '</td></tr>';
+            }
+        }
+
+        async function adminToggleSlot(slotId) {
+            try {
+                var data = await api('PUT', '/api/admin/slot/' + slotId);
+                showToast(data.message, 'success');
+                renderAdminSlots();
+            } catch (err) { showToast(err.message, 'error'); }
+        }
+
+        // ── ADMIN: All Reservations ─────────────────────────────
+        async function renderAdminReservations() {
+            var table = document.getElementById('adminReservationsTable');
+            table.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:32px"><span class="spinner"></span></td></tr>';
+            try {
+                var reservations = await api('GET', '/api/admin/reservations');
+                table.innerHTML = '';
+                if (reservations.length === 0) {
+                    table.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--gray-400)">No reservations found</td></tr>';
+                    return;
+                }
+                reservations.forEach(function(r) {
+                    var tr = document.createElement('tr');
+                    var badge = r.status === 'active' ? '<span class="badge badge-green">Active</span>' : '<span class="badge badge-gray">Cancelled</span>';
+                    tr.innerHTML = '<td class="mono text-xs">' + r.id + '</td>' +
+                        '<td><p class="font-medium text-gray-900">' + r.user_name + '</p><p class="text-xs text-gray-500">' + r.user_email + '</p></td>' +
+                        '<td class="font-medium">' + r.slot_id + '</td>' +
+                        '<td>' + r.date + '</td>' +
+                        '<td>' + r.time + '</td>' +
+                        '<td><span class="badge-mono uppercase">' + r.plate + '</span></td>' +
+                        '<td class="font-medium">' + r.cost + '</td>' +
+                        '<td>' + badge + '</td>' +
+                        '<td class="text-right"><button onclick="adminDeleteReservation(\'' + r.id + '\', \'reservations\')" class="btn-icon-danger" title="Delete reservation">' + ICONS.trash + '</button></td>';
+                    table.appendChild(tr);
+                });
+            } catch (err) {
+                table.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:32px;color:var(--red-500)">' + err.message + '</td></tr>';
+            }
+        }
+
+        // ── ADMIN: Delete Reservation ───────────────────────────
+        async function adminDeleteReservation(bookingId, source) {
+            if (!confirm('Are you sure you want to permanently delete reservation ' + bookingId + '? This cannot be undone.')) return;
+            try {
+                var data = await api('DELETE', '/api/admin/reservation/' + bookingId);
+                showToast(data.message, 'success');
+                if (source === 'dashboard') renderAdminDashboard();
+                else renderAdminReservations();
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+
+        // ── Initialize ──────────────────────────────────────────
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('filterDate').value = new Date().toISOString().split('T')[0];
+            var token = getToken();
+            var user = getUser();
+            if (token && user) {
+                navigate(user.role === 'admin' ? 'admin-dashboard' : 'dashboard');
+            } else {
+                navigate('landing');
+            }
+        });
+    </script>
+</body>
+</html>
