@@ -12,8 +12,8 @@ const path = require('path');
 const crypto = require('crypto');
 
 const app = express();
-const PORT = 3000;
-const JWT_SECRET = crypto.randomBytes(32).toString('hex');
+const PORT = process.env.PORT || 3000;
+const JWT_SECRET = process.env.JWT_SECRET || crypto.randomBytes(32).toString('hex');
 
 // ── Middleware ───────────────────────────────────────────────
 app.use(cors());
@@ -21,12 +21,13 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 
 // ── MySQL Connection Pool ───────────────────────────────────
+// Uses Railway env vars if available, otherwise falls back to local XAMPP
 const pool = mysql.createPool({
-  host: 'localhost',
-  user: 'root',
-  password: '',          // XAMPP default: no password
-  database: 'parkspace',
-  port: 3306,
+  host: process.env.MYSQLHOST || 'localhost',
+  user: process.env.MYSQLUSER || 'root',
+  password: process.env.MYSQLPASSWORD || '',
+  database: process.env.MYSQLDATABASE || 'parkspace',
+  port: parseInt(process.env.MYSQLPORT || '3306'),
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0
