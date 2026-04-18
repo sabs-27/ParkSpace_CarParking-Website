@@ -492,7 +492,7 @@ async function startServer() {
     console.error('❌ Failed to start server:', err.message);
     console.error('   Tried connecting to MySQL at: ' + (process.env.MYSQLHOST || 'localhost') + ':' + (process.env.MYSQLPORT || '3306'));
     console.error('   MYSQLHOST env:', process.env.MYSQLHOST || '(not set)');
-    console.error('   MYSQLDATABASE env:', process.env.MYSQLDATABASE || '(not set)');
+    console.error('   DB_NAME env:', process.env.DB_NAME || '(not set)');
     process.exit(1);
   }
 }
